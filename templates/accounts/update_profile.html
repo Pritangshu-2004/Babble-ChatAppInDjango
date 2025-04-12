@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="profile-update-container">
+    <h2 class="profile-update-title">Update Your Profile</h2>
+    
+    <div class="current-profile-display">
+        {% if user.profile.profile_picture %}
+            <img src="{{ user.profile.profile_picture.url }}" alt="Current Profile Picture" class="current-profile-pic">
+            <button type="button" class="btn btn-danger clear-btn" onclick="clearProfilePicture()">Clear</button>
+        {% elif user.profile.avatar %}
+            <img src="{% static 'avatars/'|add:user.profile.avatar|add:'.png' %}" alt="Current Avatar" class="current-avatar">
+        {% else %}
+            <div class="default-profile-icon">
+                <i class="fas fa-user-circle"></i>
+            </div>
+        {% endif %}
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="profile-update-form">
+        {% csrf_token %}
+        
+        <div class="form-section">
+            <div class="form-group">
+                <label for="profile_picture" class="form-label">{{ form.profile_picture.label }}</label>
+                <div class="file-input-wrapper">
+                    {{ form.profile_picture }}
+                    <span class="file-input-custom">
+                        <span class="file-input-button">Choose File</span>
+                        <span class="file-input-text">No file chosen</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <div class="form-group">
+                <label class="form-label">Select Avatar</label>
+                <div class="avatar-grid">
+                    {% for choice in form.avatar.field.choices %}
+                    <label class="avatar-option">
+                        <input type="radio" name="{{ form.avatar.name }}" value="{{ choice.0 }}" 
+                               {% if choice.0 == form.avatar.value %}checked{% endif %}>
+                        <img src="{% static 'avatars/'|add:choice.0|add:'.png' %}" 
+                             alt="{{ choice.1 }}" class="avatar-img">
+                        <span class="avatar-name">{{ choice.1 }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* Profile Update Container */
+    .profile-update-container {
+        max-width: 600px;
+        margin: 30px auto;
+        padding: 30px;
+        background: rgba(0, 26, 77, 0.8);
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 180, 255, 0.2);
+    }
+
+    .profile-update-title {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        color: #00d4ff;
+        text-align: center;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Current Profile Display */
+    .current-profile-display {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .current-profile-pic,
+    .current-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #00d4ff;
+        box-shadow: 0 5px 15px rgba(0, 180, 255, 0.3);
+    }
+
+    .default-profile-icon {
+        font-size: 120px;
+        color: #00d4ff;
+    }
+
+    /* Styling for the Clear Button */
+    .clear-btn {
+        margin-top: 10px;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(90deg, #ff4d4d, #ff1a1a);
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .clear-btn:hover {
+        background: linear-gradient(90deg, #ff1a1a, #ff4d4d);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 77, 77, 0.3);
+    }
+
+    .clear-btn:active {
+        transform: scale(0.95);
+    }
+
+    /* Form Sections */
+    .form-section {
+        margin-bottom: 25px;
+        padding: 20px;
+        background: rgba(0, 39, 102, 0.4);
+        border-radius: 10px;
+    }
+
+    /* Form Groups */
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: #b0e0ff;
+        font-size: 1.1rem;
+    }
+
+    /* File Input Styling */
+    .file-input-wrapper {
+        position: relative;
+        margin-bottom: 10px;
+    }
+
+    .file-input-wrapper input[type="file"] {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .file-input-custom {
+        display: flex;
+        align-items: center;
+    }
+
+    .file-input-button {
+        padding: 10px 15px;
+        background: linear-gradient(90deg, #00d4ff, #1e90ff);
+        color: #000;
+        border-radius: 6px;
+        font-weight: bold;
+        margin-right: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .file-input-text {
+        color: #b0c4de;
+    }
+
+    .clear-checkbox {
+        display: flex;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    .clear-checkbox input[type="checkbox"] {
+        margin-right: 8px;
+    }
+
+    .clear-checkbox label {
+        color: #ff6b6b;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    /* Avatar Selection */
+    .avatar-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .avatar-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        padding: 10px;
+        border-radius: 8px;
+        background: rgba(0, 39, 102, 0.3);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .avatar-option:hover {
+        background: rgba(0, 180, 255, 0.2);
+        transform: translateY(-3px);
+    }
+
+    .avatar-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .avatar-option input[type="radio"]:checked + .avatar-img {
+        border: 3px solid #00d4ff;
+        box-shadow: 0 0 10px rgba(0, 180, 255, 0.5);
+    }
+
+    .avatar-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .avatar-name {
+        margin-top: 8px;
+        font-size: 0.9rem;
+        color: #b0c4de;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(90deg, #00d4ff, #1e90ff);
+        color: #000;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(90deg, #1e90ff, #00d4ff);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 180, 255, 0.3);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .profile-update-container {
+            padding: 20px;
+            margin: 20px;
+        }
+
+        .profile-update-title {
+            font-size: 1.8rem;
+        }
+
+        .current-profile-pic,
+        .current-avatar {
+            width: 100px;
+            height: 100px;
+        }
+
+        .default-profile-icon {
+            font-size: 100px;
+        }
+
+        .avatar-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .avatar-img {
+            width: 60px;
+            height: 60px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .avatar-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
+<script>
+    // Update file input text when a file is selected
+    document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+        const fileName = e.target.files[0] ? e.target.files[0].name : 'No file chosen';
+        document.querySelector('.file-input-text').textContent = fileName;
+    });
+
+    // Function to clear the uploaded profile picture
+    function clearProfilePicture() {
+        const profilePictureInput = document.querySelector('input[type="file"]');
+        if (profilePictureInput) {
+            profilePictureInput.value = ""; // Clear the file input
+        }
+        const fileInputText = document.querySelector('.file-input-text');
+        if (fileInputText) {
+            fileInputText.textContent = "No file chosen"; // Reset the file input text
+        }
+    }
+</script>
+{% endblock %}

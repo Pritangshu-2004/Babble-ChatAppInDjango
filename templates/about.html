@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+<div class="about-container">
+    <h1 class="about-title">About Babble</h1>
+    <p class="about-description">
+        Welcome to <strong>Babble</strong>, a modern and secure platform for seamless communication. Whether you're connecting with friends, family, or colleagues, Babble provides a fast, reliable, and user-friendly experience.
+    </p>
+
+    <div class="features-section">
+        <h2 class="section-title">Features</h2>
+        <ul class="features-list">
+            <li><i class="fas fa-comments"></i> Real-time messaging</li>
+            <li><i class="fas fa-user-circle"></i> Customizable profiles</li>
+            <li><i class="fas fa-trash-alt"></i> Message deletion options</li>
+            <li><i class="fas fa-mobile-alt"></i> Fully responsive design</li>
+            <li><i class="fas fa-lock"></i> Secure and private</li>
+        </ul>
+    </div>
+
+    <div class="screenshots-section">
+        <h2 class="section-title">Screenshots</h2>
+        <div class="screenshots-grid">
+            <div class="screenshot">
+                <img src="{% static 'images/chat_screenshot1.png' %}" alt="Chat Screenshot">
+                <p>Real-time chat interface</p>
+            </div>
+            <div class="screenshot">
+                <img src="{% static 'images/profile_screenshot.png' %}" alt="Profile Screenshot">
+                <p>Customizable profile page</p>
+            </div>
+            <div class="screenshot">
+                <img src="{% static 'images/login_screenshot.png' %}" alt="Login Screenshot">
+                <p>Secure login system</p>
+            </div>
+            <div class="screenshot">
+                <img src="{% static 'images/Signup.png' %}" alt="Login Screenshot">
+                <p>Secure login system</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="team-section">
+        <h2 class="section-title">Meet the Team</h2>
+        <p class="team-description">
+            Babble is developed by a passionate team of developers dedicated to creating the best communication experience. We believe in innovation, security, and user satisfaction.
+        </p>
+    </div>
+</div>
+
+<style>
+    .about-container {
+        max-width: 900px;
+        margin: 50px auto;
+        padding: 20px;
+        background: rgba(0, 26, 77, 0.8);
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+        color: #e0e0e0;
+        text-align: center;
+    }
+
+    .about-title {
+        font-size: 2.5rem;
+        color: #00bfff;
+        margin-bottom: 20px;
+        text-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+    }
+
+    .about-description {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+
+    .features-section, .screenshots-section, .team-section {
+        margin-top: 40px;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        color: #00d4ff;
+        margin-bottom: 20px;
+        text-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+    }
+
+    .features-list {
+        list-style: none;
+        padding: 0;
+        font-size: 1.1rem;
+        line-height: 1.8;
+        text-align: left;
+        margin: 0 auto;
+        max-width: 600px;
+    }
+
+    .features-list li {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .features-list i {
+        color: #00bfff;
+        font-size: 1.5rem;
+    }
+
+    .screenshots-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .screenshot {
+        background: rgba(0, 39, 102, 0.7);
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        text-align: center;
+    }
+
+    .screenshot img {
+        max-width: 100%;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .screenshot p {
+        font-size: 0.9rem;
+        color: #b0c4de;
+    }
+
+    .team-description {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}

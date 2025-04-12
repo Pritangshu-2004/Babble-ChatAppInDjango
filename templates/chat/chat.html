@@ -1,0 +1,431 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="chat-container my-4">
+    <h3 class="chat-header">Chat with {{ r.username }}</h3>
+    <div id="chatBox" class="chat-messages">
+        {% for message in messages %}
+        <div class="message {% if message.sender == request.user %}sender-message{% else %}receiver-message{% endif %}" data-message-id="{{ message.id }}">
+            <p>{{ message.content }}</p>
+            <small class="timestamp">{{ message.timestamp|date:"H:i" }}</small>
+            <button type="button" class="btn btn-danger delete-btn" data-message-id="{{ message.id }}">
+                <i class="fas fa-trash-alt"></i> <!-- Recycle Bin Icon -->
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    <form method="POST" id="messageForm" class="message-form">
+        {% csrf_token %}
+        <div class="input-group">
+            <input type="text" class="form-control" name="msg" id="messageInput" placeholder="Type your message...">
+            <button type="submit" class="btn btn-metallic">Send</button>
+            <button type="button" id="deleteChatBtn" class="btn btn-danger">
+                <i class="fas fa-trash-alt"></i>
+                Delete All Messages <!-- Recycle Bin Icon -->
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* General Styling */
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: #000f38;
+        background: linear-gradient(90deg, rgba(0, 15, 56, 1) 0%, rgba(0, 0, 0, 1) 100%);
+        color: #fff;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    .chat-container {
+        width: 46%;
+        margin: 50px auto;
+        padding: 10px;
+        border-radius: 13px;
+        background: linear-gradient(145deg, rgb(6, 44, 88), rgb(4, 30, 58));
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-header {
+        text-align: center;
+        font-size: 1.8rem;
+        margin-bottom: 12px;
+        color: #d1d1d1;
+        text-shadow: 0 0 10px rgba(236, 156, 156, 0.2);
+    }
+
+    .chat-messages {
+        height: 500px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 30px;
+        background: linear-gradient(90deg, rgba(98, 92, 138, 1) 0%, rgba(6, 6, 59, 1) 100%, rgba(0, 212, 255, 1) 22%);
+        border-radius: 10px;
+        border: 1px solid #ffffff;
+        box-shadow: inset 0 2px 5px rgba(53, 43, 43, 0.5);
+    }
+
+    .message {
+        border-radius: 10px;
+        padding: 10px;
+        max-width: 70%;
+        word-wrap: break-word;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .sender-message {
+        background: linear-gradient(90deg, rgba(167, 166, 191, 1) 0%, rgba(0, 212, 255, 1) 100%);
+        color: #000000;
+        align-self: flex-end;
+        text-align: right;
+        box-shadow: 0 4px 10px rgba(78, 115, 223, 0.5);
+    }
+
+    .receiver-message {
+        background: linear-gradient(90deg, rgba(2, 0, 48, 1) 0%, rgba(0, 78, 97, 1) 100%);
+        color: #fff;
+        align-self: flex-start;
+        text-align: left;
+        box-shadow: 0 4px 10px rgba(44, 62, 80, 0.5);
+    }
+
+    .message-form {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .form-control {
+        flex: 1;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        outline: none;
+    }
+
+    .form-control::placeholder {
+        color: #aaa;
+    }
+
+    .btn-metallic {
+        background: linear-gradient(145deg, #3a506b, #5c6e91); /* Metallic button */
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        text-transform: uppercase;
+        font-weight: bold;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease-in-out;
+    }
+
+    .btn-metallic:hover {
+        background: linear-gradient(145deg, #5c6e91, #3a506b); /* Reverse gradient on hover */
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7), inset 0 1px 3px rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .btn-danger {
+        background: transparent;
+        color: #ff4d4d;
+        border: none;
+        border-radius: 5px;
+        padding: 10px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: color 0.3s ease;
+    }
+
+    .btn-danger:hover {
+        color: #ff1a1a;
+    }
+
+    .btn-danger i {
+        font-size: 1.5rem;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .delete-btn {
+        background: #ff4d4d;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+    
+    .delete-btn:hover {
+        background: #ff1a1a;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .chat-container {
+            width: 90%;
+            margin: 20px auto;
+        }
+
+        .chat-header {
+            font-size: 1.5rem;
+        }
+
+        .chat-messages {
+            height: 400px;
+            padding: 20px;
+        }
+
+        .message {
+            max-width: 90%;
+        }
+
+        .message-form {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn-metallic {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .chat-container {
+            width: 95%;
+            margin: 10px auto;
+        }
+
+        .chat-header {
+            font-size: 1.2rem;
+        }
+
+        .chat-messages {
+            height: 375px;
+            padding: 15px;
+        }
+
+        .message {
+            max-width: 100%;
+        }
+
+        .form-control {
+            font-size: 0.9rem;
+        }
+
+        .btn-metallic {
+            font-size: 0.9rem;
+            padding: 10px;
+        }
+    }
+</style>
+
+<script>
+    let isUserScrolling = false;
+    let isFirstLoad = true; // Used to detect the initial page load
+
+    const chatBox = document.getElementById('chatBox');
+
+    // Detect user scrolling interaction
+    chatBox.addEventListener('scroll', () => {
+        isUserScrolling = chatBox.scrollTop + chatBox.clientHeight < chatBox.scrollHeight - 50;
+    });
+
+    function fetchMessages() {
+        fetch('/chat/{{ r.username }}/get_messages/')
+            .then(response => response.json())
+            .then(data => {
+                const currentMessages = chatBox.querySelectorAll('.message').length;
+                if (data.messages.length !== currentMessages) {
+                    chatBox.innerHTML = ''; // Clear current messages
+
+                    data.messages.forEach(msg => {
+                        const messageElement = document.createElement('div');
+                        messageElement.classList.add('message');
+                        if (msg.sender === '{{ request.user.username }}') {
+                            messageElement.classList.add('sender-message');
+                        } else {
+                            messageElement.classList.add('receiver-message');
+                        }
+
+                        messageElement.innerHTML = `
+                            <p>${msg.content}</p>
+                            <small class="timestamp">${msg.timestamp}</small>
+                        `;
+
+                        // Add delete button with recycle bin icon
+                        const deleteButton = document.createElement('button');
+                        deleteButton.classList.add('delete-btn');
+                        deleteButton.setAttribute('data-message-id', msg.id);
+                        deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>'; // Use icon here
+                        deleteButton.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            deleteMessage(msg.id);
+                        });
+                        messageElement.appendChild(deleteButton);
+
+                        chatBox.appendChild(messageElement);
+                    });
+
+                    if (isFirstLoad || !isUserScrolling) {
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                        isFirstLoad = false;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching messages:', error);
+            });
+    }
+    
+    function deleteMessage(messageId) {
+        fetch(`/chat/delete_message/${messageId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the message from the DOM
+                document.querySelector(`button[data-message-id="${messageId}"]`).parentElement.remove();
+            } else {
+                alert(data.error || 'Failed to delete the message.');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Initial scroll to the bottom when the page loads
+    window.onload = function () {
+        fetchMessages();
+        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom on load
+    };
+
+    // Refresh the chat every 1 second
+    setInterval(fetchMessages, 1000);
+
+    document.getElementById('messageForm').onsubmit = function (event) {
+        event.preventDefault();
+        const msgInput = document.getElementById('messageInput');
+        const msg = msgInput.value;
+
+        if (msg.trim() !== '') {
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value, // Correct CSRF token handling
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `msg=${encodeURIComponent(msg)}` // Fixed typo in `encodeURIComponent`
+            })
+                .then(response => {
+                    if (response.ok) {
+                        msgInput.value = ''; // Clear the input field
+                        fetchMessages(); // Refresh after sending
+
+                        // Scroll to the bottom after sending a message
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    } else {
+                        console.error('Failed to send message:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending message:', error);
+                });
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        function deleteMessage(messageId, deleteForEveryone = false) {
+            const url = deleteForEveryone
+                ? `/chat/delete_message/${messageId}/?delete_for_everyone=true`
+                : `/chat/delete_message/${messageId}/`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (deleteForEveryone) {
+                        // Remove the message for everyone
+                        document.querySelector(`div[data-message-id="${messageId}"]`).remove();
+                    } else {
+                        // Remove the message only for the current user
+                        document.querySelector(`div[data-message-id="${messageId}"]`).remove();
+                    }
+                    alert(data.message);
+                } else {
+                    alert(data.error || 'Failed to delete the message.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Attach event listeners to delete buttons
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const messageId = button.getAttribute('data-message-id');
+                if (!messageId) {
+                    console.error('Message ID is undefined.');
+                    return;
+                }
+
+                // Show options for "Delete for Me" and "Delete for Everyone"
+                const deleteForEveryone = confirm('Do you want to delete this message for everyone? Click "Cancel" to delete only for yourself.');
+                deleteMessage(messageId, deleteForEveryone);
+            });
+        });
+
+        // Delete all chat
+        const deleteChatBtn = document.getElementById('deleteChatBtn');
+
+        deleteChatBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to delete the entire chat for your side? This action cannot be undone.')) {
+                fetch(`/chat/delete_chat/{{ r.username }}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        document.getElementById('chatBox').innerHTML = ''; // Clear the chat messages for the sender
+                    } else {
+                        alert(data.error || 'Failed to delete the chat.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        });
+    });
+</script>
+{% endblock %}
