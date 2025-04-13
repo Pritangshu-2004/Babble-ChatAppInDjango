@@ -14,7 +14,7 @@ SECRET_KEY = 'sd^^-r5edl)&01&9r0d)#&m)()+41k@npr^kx-6-lk9h68b(r@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS =  ['127.0.0.1']
+ALLOWED_HOSTS =  ['*']
 
 
 # Application definition
