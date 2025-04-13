@@ -314,6 +314,9 @@
 </style>
 
 <script>
+    document.querySelector('.file-input-button').addEventListener('click', function() {
+        document.querySelector('input[type="file"]').click();
+    });
     // Update file input text when a file is selected
     document.querySelector('input[type="file"]').addEventListener('change', function(e) {
         const fileName = e.target.files[0] ? e.target.files[0].name : 'No file chosen';
