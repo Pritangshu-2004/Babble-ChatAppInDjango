@@ -8,8 +8,7 @@ from .forms import ProfileForm, ProfileUpdateForm
 
 # Create your views here.
 def home(request):
-    # Exclude the admin account (e.g., "pritangshu") from the user list
-    users = User.objects.exclude(username="pritangshu")
+    users = User.objects.exclude(username="Admin")  # Exclude the admin user from the list
     return render(request, "accounts/accounts.html", {"users": users})
 
 def about(request):
